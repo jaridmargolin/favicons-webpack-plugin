@@ -79,12 +79,16 @@ test('should generate a configured JSON file', async t => {
 test('should work together with the html-webpack-plugin', async t => {
   const stats = await webpack(baseWebpackConfig([
     new FaviconsWebpackPlugin({
+      inject: ['!unmodified.html'],
       logo: LOGO_PATH,
       emitStats: true,
       statsFilename: 'iconstats.json',
       persistentCache: false
     }),
-    new HtmlWebpackPlugin()
+    new HtmlWebpackPlugin(),
+    new HtmlWebpackPlugin({
+      filename: 'unmodified.html'
+    })
   ]));
   const outputPath = stats.compilation.compiler.outputPath;
   const expected = path.resolve(__dirname, 'fixtures/expected/generate-html');
