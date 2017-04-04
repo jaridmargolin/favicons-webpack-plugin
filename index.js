@@ -55,10 +55,18 @@ FaviconsWebpackPlugin.prototype.apply = function (compiler) {
   if (self.options.inject) {
     compiler.plugin('compilation', function (compilation) {
       compilation.plugin('html-webpack-plugin-before-html-processing', function (htmlPluginData, callback) {
-        if (htmlPluginData.plugin.options.favicons !== false) {
+        var shouldInject = htmlPluginData.plugin.options.favicons !== false;
+        if (shouldInject && _.isString(self.options.inject)) {
+          shouldInject = self.options.inject === htmlPluginData.outputName;
+        } else if (shouldInject && _.isArray(self.options.inject)) {
+          shouldInject = _.includes(self.options.inject, htmlPluginData.outputName)
+        }
+
+        if (shouldInject) {
           htmlPluginData.html = htmlPluginData.html.replace(
             /(<\/head>)/i, compilationResult.stats.html.join('') + '$&');
         }
+
         callback(null, htmlPluginData);
       });
     });
